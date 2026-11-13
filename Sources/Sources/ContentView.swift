@@ -4,29 +4,44 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
 
-            VStack(spacing: 24) {
+            // Metal graphics background
+            MetalView()
+                .ignoresSafeArea()
 
-                Text("BEAST FPS LAB")
-                    .font(.largeTitle.bold())
+            // Main interface
+            VStack(spacing: 25) {
+
+                Spacer()
+
+                Text("BEAST")
+                    .font(.system(
+                        size: 48,
+                        weight: .black
+                    ))
                     .foregroundColor(.green)
 
-                Text("MOBILE FPS TRAINING SYSTEM")
+                Text("FPS LAB")
+                    .font(.title2.bold())
+                    .foregroundColor(.white)
+
+                Text("TACTICAL TRAINING SYSTEM")
                     .font(.caption)
                     .foregroundColor(.gray)
 
                 Spacer()
 
-                Button("START TRAINING") {
+                Button {
                     print("Training started")
+                } label: {
+                    Text("START TRAINING")
+                        .font(.headline.bold())
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green)
+                        .cornerRadius(12)
                 }
-                .font(.headline)
-                .foregroundColor(.black)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.green)
-                .cornerRadius(12)
 
                 Button("SETTINGS") {
                     print("Settings opened")
@@ -35,11 +50,12 @@ struct ContentView: View {
 
                 Spacer()
 
-                Text("VERSION 0.1.0")
+                Text("BUILD 0.1.0 | METAL ENGINE")
                     .font(.caption2)
                     .foregroundColor(.gray)
             }
-            .padding(25)
+            .padding(30)
         }
+        .preferredColorScheme(.dark)
     }
 }
