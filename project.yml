@@ -1,22 +1,51 @@
-name: BEASTFPSLab
+name: BEAST FPS LAB iOS Build
 
-options:
-  bundleIdPrefix: com.beastfps
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
-targets:
-  BEASTFPSLab:
-    type: application
-    platform: iOS
-    deploymentTarget: "16.0"
+jobs:
+  build:
+    name: Build iOS App
+    runs-on: macos-15
 
-    sources:
-      - path: Sources
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.beastfps.lab
-        PRODUCT_NAME: BEAST FPS LAB
-        SWIFT_VERSION: "5.0"
-        TARGETED_DEVICE_FAMILY: "1,2"
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+      - name: Show Swift Version
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Show Project Structure
+        run: |
+          echo "Repository:"
+          pwd
+          echo ""
+          echo "Files:"
+          find . -maxdepth 3 -type f | sort
+
+      - name: Check Swift Package
+        run: |
+          if [ ! -f "Package.swift" ]; then
+            echo "ERROR: Package.swift not found."
+            echo "This repository needs an Xcode project or Swift Package manifest."
+            exit 1
+          fi
+
+      - name: Build Swift Package
+        run: |
+          swift build
+
+      - name: Build Result
+        if: success()
+        run: |
+          echo "================================="
+          echo "BEAST FPS LAB BUILD SUCCESSFUL"
+          echo "================================="
