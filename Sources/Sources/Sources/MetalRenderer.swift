@@ -4,22 +4,44 @@ import MetalKit
 final class MetalRenderer: NSObject, MTKViewDelegate {
 
     private let commandQueue: MTLCommandQueue
+    private let pipelineState: MTLRenderPipelineState
 
     init?(device: MTLDevice) {
-        guard let queue = device.makeCommandQueue() else {
+
+        guard let queue = device.makeCommandQueue(),
+              let library = device.makeDefaultLibrary(),
+              let vertexFunction = library.makeFunction(
+                name: "vertex_main"
+              ),
+              let fragmentFunction = library.makeFunction(
+                name: "fragment_main"
+              ) else {
             return nil
         }
 
-        self.commandQueue = queue
+        let descriptor = MTLRenderPipelineDescriptor()
+
+        descriptor.vertexFunction = vertexFunction
+        descriptor.fragmentFunction = fragmentFunction
+
+        descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+
+        guard let pipeline = try? device.makeRenderPipelineState(
+            descriptor: descriptor
+        ) else {
+            return nil
+        }
+
+        commandQueue = queue
+        pipelineState = pipeline
+
         super.init()
     }
 
     func mtkView(
         _ view: MTKView,
         drawableSizeWillChange size: CGSize
-    ) {
-        // Handle screen resizing
-    }
+    ) {}
 
     func draw(in view: MTKView) {
 
@@ -33,6 +55,14 @@ final class MetalRenderer: NSObject, MTKViewDelegate {
         else {
             return
         }
+
+        encoder.setRenderPipelineState(pipelineState)
+
+        encoder.drawPrimitives(
+            type: .triangle,
+            vertexStart: 0,
+            vertexCount: 3
+        )
 
         encoder.endEncoding()
 
