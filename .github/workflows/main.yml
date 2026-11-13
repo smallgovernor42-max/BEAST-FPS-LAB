@@ -1,17 +1,61 @@
-name: CI
+
+name: BEAST FPS LAB iOS Build
+
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+    name: Build iOS App
+    runs-on: macos-15
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install -r requirements.txt || true
-      - run: pip install pytest flake8
-      - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-      - run: pytest || [ $? -eq 5 ]
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app
+          xcodebuild -version
+
+      - name: Show Project Files
+        run: |
+          ls -la
+          find . -maxdepth 3 \( -name "*.xcodeproj" -o -name "*.xcworkspace" -o -name "Package.swift" \)
+
+      - name: Build iOS Project
+        run: |
+          PROJECT=$(find . -name "*.xcodeproj" -print -quit)
+
+          if [ -z "$PROJECT" ]; then
+            echo "ERROR: No Xcode project found."
+            exit 1
+          fi
+
+          SCHEME=$(xcodebuild -list -project "$PROJECT" |
+            sed -n '/Schemes:/,$p' |
+            awk 'NR==2 {print $1}')
+
+          if [ -z "$SCHEME" ]; then
+            echo "ERROR: No Xcode scheme found."
+            exit 1
+          fi
+
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Build Result
+        if: success()
+        run: echo "BEAST FPS LAB BUILD SUCCESSFUL"
