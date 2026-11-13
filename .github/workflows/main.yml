@@ -1,22 +1,10 @@
-name: BEASTFPSLab
-
-options:
-  bundleIdPrefix: com.beastfps
-
-targets:
-  BEASTFPSLab:
-    type: application
-    platform: iOS
-    deploymentTarget: "16.0"
-
-    sources:
-      - path: Sources
-
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.beastfps.lab
-        PRODUCT_NAME: BEAST FPS LAB
-        SWIFT_VERSION: "5.0"
-        TARGETED_DEVICE_FAMILY: "1,2"
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+name: CI
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Workflow OK"
